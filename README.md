@@ -37,9 +37,9 @@ The template configuration structure can be seen below.
     <DisplayName>Demo User</DisplayName>
     <MarkupLayer>5</MarkupLayer>
     <MarkupColor>#a52a2a</MarkupColor>
-    <!--<XmlUrl>http://viewserver.rasterex.com/RxBinweb/RxCSISAPI.dll?WebClientPublish</XmlUrl>-->
-    <!--<XmlUrlRel>http://viewserver.rasterex.com/RxBinweb</XmlUrlRel>-->
-    <!--<MarkupSaveUrl>http://viewserver.rasterex.com/RxBinweb/RxCSISAPI.dll?WebClientSaveMarkup</MarkupSaveUrl>-->
+    <!--<XmlUrl>https://test.rasterex.com/RxBinweb/RxCSISAPI.dll?WebClientPublish</XmlUrl>-->
+    <!--<XmlUrlRel>https://test.rasterex.com/RxBinweb</XmlUrlRel>-->
+    <!--<MarkupSaveUrl>https://test.rasterex.com/RxBinweb/RxCSISAPI.dll?WebClientSaveMarkup</MarkupSaveUrl>-->
     <PrintPageURL>printcanvas.htm</PrintPageURL>
     <CanChangeLayer>True</CanChangeLayer>
 	<EnableMarkupEdit>True</EnableMarkupEdit>

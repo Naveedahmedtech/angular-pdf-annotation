@@ -6,10 +6,11 @@ import {
   ViewChild,
   ElementRef,
   Input,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { RXCore } from 'src/rxcore';
 import { FileGaleryService } from './file-galery.service';
-import {NEST_URL} from "../../constants";
+import { NEST_URL } from '../../constants';
 
 // test: http://localhost:4200/?file_id=uploads%2Fprojects%2FNaveed%20MERN%20Dev%20-%20AT.pdf
 
@@ -165,13 +166,14 @@ export class FileGaleryComponent implements OnInit {
   file: any;
   isUploadFile: boolean = false;
   fileType: string;
+  isUploading: boolean = false;
 
-  constructor(private readonly fileGaleryService: FileGaleryService) {}
+  constructor(private readonly fileGaleryService: FileGaleryService,private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
-    console.log('file-galery component initialized.', this.filePath);
+    // console.log('file-galery component initialized.', this.filePath);
     this.fileGaleryService.filePath$.subscribe((filePath) => {
-      console.log('File path in TopNavMenu:', filePath);
+      // console.log('File path in TopNavMenu:', filePath);
       if (filePath) {
         this.loadFileById(filePath);
       }
@@ -187,7 +189,8 @@ export class FileGaleryComponent implements OnInit {
   }
 
   loadFileById(filePath: string) {
-    console.log('Loading file with filepath:', filePath);
+    
+    // console.log('Loading file with filepath:', filePath);
     const customFile = {
       id: 'test-id',
       name: filePath, // File URL
@@ -206,7 +209,7 @@ export class FileGaleryComponent implements OnInit {
 
   normalizeFile(customFile: any): Promise<File> {
     const { name, type, size } = customFile;
-    console.log('Normalizing file', customFile);
+    // console.log('Normalizing file', customFile);
     // Extract the file name from the URL if `name` is a URL
     const fileName = name.split('/').pop() || 'unknown-file';
 
@@ -243,11 +246,11 @@ export class FileGaleryComponent implements OnInit {
   //     size: 5242880, // 5 MB
   //     type: 'application/pdf',
   //   }): void {
-  //   console.log('Testing with custom file:', customFile);
+  //   // console.log('Testing with custom file:', customFile);
   //
   //   this.normalizeFile(customFile)
   //     .then((file) => {
-  //       console.log('Normalized File:', file);
+  //       // console.log('Normalized File:', file);
   //
   //       // Simulate adding the file to the input element
   //       const fileInput = document.getElementById(
@@ -272,49 +275,173 @@ export class FileGaleryComponent implements OnInit {
   //     });
   // }
 
-  testCustomFile(customFile:any): void {
-    console.log('Testing with custom file:', customFile);
 
+
+
+  testCustomFile(customFile: any): void {
+    if (this.isUploading) {
+      console.warn('Upload already in progress...');
+      return;
+    }
+  
+  
     this.normalizeFile(customFile)
       .then((file) => {
-        console.log('Normalized File:', file);
+        if (!file || !file.size) {
+          console.error('Invalid file detected:', file);
+          return;
+        }
+  
         this.handleFileUpload(null, file);
-
-
-        // Use DataTransfer to simulate file input
+  
+        // Create DataTransfer to simulate file input
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
-
-        const fileInput = document.getElementById(
-          'fileToUpload'
-        ) as HTMLInputElement;
-
+  
+        const fileInput = document.getElementById('fileToUpload') as HTMLInputElement;
+  
         if (fileInput) {
-          console.log("Coming in file input", {dataTransfer: dataTransfer.files})
-          fileInput.files = dataTransfer.files; // Set the files using DataTransfer
-
-          // Trigger the change event to notify the system
-          const changeEvent = new Event('change', { bubbles: true });
-          console.log("changeEvent", changeEvent)
-          fileInput.dispatchEvent(changeEvent);
-          // this.uploadFile(file);
+          fileInput.files = dataTransfer.files;
+  
+          setTimeout(() => {
+            const changeEvent = new Event('change', { bubbles: true });
+            fileInput.dispatchEvent(changeEvent);
+  
+            setTimeout(() => {
+              if (fileInput.files && fileInput.files.length > 0) {
+                console.log("File registered:", fileInput.files[0]);
+  
+                // **Retry mechanism to find the upload button**
+                const waitForButton = setInterval(() => {
+                  const uploadButton = document.getElementById('uploadButton') as HTMLButtonElement;
+                  if (uploadButton) {
+                    clearInterval(waitForButton); // Stop retrying once found
+                    uploadButton.click();
+                    console.log("Upload button clicked programmatically");
+                  } else {
+                    console.warn("Upload button not found yet, retrying...");
+                  }
+                }, 100); // Check every 100ms until the button is found
+  
+                setTimeout(() => {
+                  clearInterval(waitForButton); // Stop trying after 3 seconds
+                  console.error("Upload button was not found in time.");
+                }, 3000);
+              } else {
+                console.error("File input did not register the file correctly.");
+              }
+            }, 100);
+          }, 200);
         } else {
-          console.error('File input element not found');
+          console.error("File input element not found");
         }
       })
       .catch((error) => {
-        console.error('Error handling custom file:', error);
+        console.error("Error handling custom file:", error);
       });
   }
+  
+  
+  
+  
+  
+
+  // testCustomFile(customFile: any): void {
+  //   this.normalizeFile(customFile)
+  //     .then((file) => {
+  //       if (!file || !file.size) {
+  //         console.error('Invalid file detected:', file);
+  //         return;
+  //       }
+  
+  //       this.handleFileUpload(null, file);
+  
+  //       // Create DataTransfer to simulate file input
+  //       const dataTransfer = new DataTransfer();
+  //       dataTransfer.items.add(file);
+  
+  //       const fileInput = document.getElementById(
+  //         'fileToUpload'
+  //       ) as HTMLInputElement;
+  
+  //       if (fileInput) {
+  //         fileInput.files = dataTransfer.files;
+  
+  //         // Delay execution to let Angular detect file change
+  //         setTimeout(() => {
+  //           const changeEvent = new Event('change', { bubbles: true });
+  //           fileInput.dispatchEvent(changeEvent);
+  
+  //           // Ensure the file is properly uploaded after dispatching event
+  //           setTimeout(() => {
+  //             if (fileInput.files) {
+  //               if(fileInput.files.length > 0) {
+  //                 console.log("fileInput.files[0]", fileInput.files[0])
+  //                 this.uploadFile(fileInput.files[0]); // Ensure the file is uploaded correctly
+  //               }
+  //             } else {
+  //               console.error('File input did not register the file correctly.');
+  //             }
+  //           }, 100);
+  //         }, 200);
+  //       } else {
+  //         console.error('File input element not found');
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error handling custom file:', error);
+  //     });
+  // }
+  
+  
+  // testCustomFile(customFile: any): void {
+  //   // console.log('Testing with custom file:', customFile);
+
+  //   this.normalizeFile(customFile)
+  //     .then((file) => {
+  //       debugger;
+  //       this.handleFileUpload(null, file);
+
+  //       // Use DataTransfer to simulate file input
+  //       const dataTransfer = new DataTransfer();
+  //       dataTransfer.items.add(file);
+
+  //       const fileInput = document.getElementById(
+  //         'fileToUpload'
+  //       ) as HTMLInputElement;
+
+  //       if (fileInput) {
+  //         fileInput.files = dataTransfer.files; // Set the files using DataTransfer
+
+  //         // Trigger the change event to notify the system
+  //         const changeEvent = new Event('change', { bubbles: true });
+  //         fileInput.dispatchEvent(changeEvent);
+  //         if(file) {
+  //           this.uploadFile(file);
+  //         }
+  //       } else {
+  //         console.error('File input element not found');
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error handling custom file:', error);
+  //     });
+  // }
 
   /**
    * Handle File Upload from input or API-based file
    */
+  private isProgrammaticChange: boolean = false; // Add this to your component
+
   handleFileUpload(event?: any, customFile?: any): void {
+    if (this.isProgrammaticChange) {
+      this.isProgrammaticChange = false; // Reset flag to allow future changes
+      return; // Prevent recursive call
+    }
+
     const file =
       customFile ?? (event?.target ? event.target.files[0] : event?.[0]);
 
-    // Use DataTransfer to simulate file input
     const dataTransfer = new DataTransfer();
     dataTransfer.items.add(file);
 
@@ -323,19 +450,19 @@ export class FileGaleryComponent implements OnInit {
     ) as HTMLInputElement;
 
     if (fileInput) {
-      console.log("Coming in file input", {dataTransfer: dataTransfer.files})
-      fileInput.files = dataTransfer.files; // Set the files using DataTransfer
+      // console.log('Coming in file input', { dataTransfer: dataTransfer.files });
+      fileInput.files = dataTransfer.files;
 
-      // Trigger the change event to notify the system
+      // Set flag before triggering change event
+      this.isProgrammaticChange = true;
       const changeEvent = new Event('change', { bubbles: true });
       fileInput.dispatchEvent(changeEvent);
-      // this.uploadFile(file);
     } else {
       console.error('File input element not found');
     }
 
     if (file) {
-      this.file = file; // Assign file
+      this.file = file;
       this.selectedFileName = file.name;
 
       const bytes = file.size;
@@ -353,9 +480,56 @@ export class FileGaleryComponent implements OnInit {
         this.fileSizeUnits = 'GB';
       }
 
-      console.log('File uploaded:', this.file);
+      // // console.log('File uploaded:', this.file);
     }
   }
+
+  // handleFileUpload(event?: any, customFile?: any): void {
+  //   const file =
+  //     customFile ?? (event?.target ? event.target.files[0] : event?.[0]);
+
+  //   // Use DataTransfer to simulate file input
+  //   const dataTransfer = new DataTransfer();
+  //   dataTransfer.items.add(file);
+
+  //   const fileInput = document.getElementById(
+  //     'fileToUpload'
+  //   ) as HTMLInputElement;
+
+  //   if (fileInput) {
+  //     // // console.log("Coming in file input", {dataTransfer: dataTransfer.files})
+  //     fileInput.files = dataTransfer.files; // Set the files using DataTransfer
+
+  //     // Trigger the change event to notify the system
+  //     const changeEvent = new Event('change', { bubbles: true });
+  //     fileInput.dispatchEvent(changeEvent);
+  //     // this.uploadFile(file);
+  //   } else {
+  //     console.error('File input element not found');
+  //   }
+
+  //   if (file) {
+  //     this.file = file; // Assign file
+  //     this.selectedFileName = file.name;
+
+  //     const bytes = file.size;
+  //     if (bytes < 1024) {
+  //       this.fileSize = parseFloat(bytes.toFixed(2));
+  //       this.fileSizeUnits = 'B';
+  //     } else if (bytes < 1024 * 1024) {
+  //       this.fileSize = parseFloat((bytes / 1024).toFixed(2));
+  //       this.fileSizeUnits = 'KB';
+  //     } else if (bytes < 1024 * 1024 * 1024) {
+  //       this.fileSize = parseFloat((bytes / (1024 * 1024)).toFixed(2));
+  //       this.fileSizeUnits = 'MB';
+  //     } else {
+  //       this.fileSize = parseFloat((bytes / (1024 * 1024 * 1024)).toFixed(2));
+  //       this.fileSizeUnits = 'GB';
+  //     }
+
+  //     // // console.log('File uploaded:', this.file);
+  //   }
+  // }
 
   /**
    * Upload File with Progress
@@ -421,7 +595,7 @@ export class FileGaleryComponent implements OnInit {
     loadNextChunk();
 
     this.fileGaleryService.sendEventUploadFile();
-    console.log('Uploaded file:', file);
+    // console.log('Uploaded file:', file);
 
     if (file) {
       this.onUpload.emit();

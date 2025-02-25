@@ -34,6 +34,9 @@ export class FileGaleryService {
   private fileUploadStatus = new ReplaySubject<{ success: boolean; message: string }>(1);
   fileUploadStatus$ = this.fileUploadStatus.asObservable();
 
+  private issueIdSource = new BehaviorSubject<string | null>(null);
+  issueId$ = this.issueIdSource.asObservable();
+
   /** 🔹 Open & Close File Modal */
   public openModal(): void {
     this._modalOpened.next(true);
@@ -63,34 +66,32 @@ export class FileGaleryService {
 
   /** 🔹 Set Values with Debugging Logs */
   setFileId(fileId: string) {
-    console.log("✅ Setting fileId:", fileId);
     this.fileIdSubject.next(fileId);
   }
 
   setFilePath(filePath: string) {
-    console.log("✅ Setting filePath:", filePath);
     this.filePathSubject.next(filePath);
   }
 
   setProjectId(projectId: string) {
-    console.log("✅ Setting projectId:", projectId);
     this.projectIdSubject.next(projectId);
   }
 
   setUserId(userId: string) {
-    console.log("✅ Setting userId:", userId);
     this.userIdSubject.next(userId);
   }
 
   /** 🔹 Trigger Top Navigation Method */
   triggerTopNavMethod() {
-    console.log("🔄 Triggering top nav method...");
     this.topNavMethodTrigger.next();
   }
 
   /** 🔹 Emit Upload Success/Failure */
   notifyFileUploadStatus(success: boolean, message: string) {
-    console.log(`🔄 File Upload Status: Success=${success}, Message=${message}`);
     this.fileUploadStatus.next({ success, message });
+  }
+
+  setIssueId(issueId: string) {
+    this.issueIdSource.next(issueId);
   }
 }

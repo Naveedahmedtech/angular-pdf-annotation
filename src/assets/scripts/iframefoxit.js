@@ -288,7 +288,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                             {
                                 //bold: -1,
                                 flags: 32 ,
-                                url: 'http://viewserver.rasterex.com/rxweb/assets/fonts/arial.ttf'
+                                url: 'https://test.rasterex.com/rxweb/assets/fonts/arial.ttf'
                             }
                     ],
         
@@ -301,7 +301,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                         {
                                 //bold: -1,
                                 flags: 32 ,
-                                url: 'http://viewserver.rasterex.com/rxweb/assets/fonts/arialbd.ttf'
+                                url: 'https://test.rasterex.com/rxweb/assets/fonts/arialbd.ttf'
                         }
                     ],
                     charsets: [0]
@@ -312,7 +312,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                         {
                             //bold: -1,
                             flags: 32 ,
-                            url: 'http://viewserver.rasterex.com/rxweb/assets/fonts/arialbi.ttf'
+                            url: 'https://test.rasterex.com/rxweb/assets/fonts/arialbi.ttf'
                         }
                     ],
                     charsets: [0]
@@ -323,7 +323,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                         {
                                 //bold: -1,
                                 flags: 32 ,
-                                url: 'http://viewserver.rasterex.com/rxweb/assets/fonts/ariali.ttf'
+                                url: 'https://test.rasterex.com/rxweb/assets/fonts/ariali.ttf'
                         }
                     ],
                     charsets: [0]
@@ -334,7 +334,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                         {
                             //bold: -1,
                             flags: 32 ,
-                            url: 'http://viewserver.rasterex.com/rxweb/assets/fonts/ariblk.ttf'
+                            url: 'https://test.rasterex.com/rxweb/assets/fonts/ariblk.ttf'
                         }
                     ],
                     charsets: [0]
@@ -345,7 +345,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                         {
                             //bold: -1,
                             flags: 32 ,
-                            url: 'http://viewserver.rasterex.com/rxweb/assets/fonts/times.ttf'
+                            url: 'https://test.rasterex.com/rxweb/assets/fonts/times.ttf'
                         }
                     ],
                     charsets: [0]
@@ -356,7 +356,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                         {
                             //bold: -1,
                             flags: 32 ,
-                            url: 'http://viewserver.rasterex.com/rxweb/assets/fonts/timesbd.ttf'
+                            url: 'https://test.rasterex.com/rxweb/assets/fonts/timesbd.ttf'
                         }
                     ],
                     charsets: [0]
@@ -367,7 +367,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                         {
                             //bold: -1,
                             flags: 32 ,
-                            url: 'http://viewserver.rasterex.com/rxweb/assets/fonts/timesbi.ttf'
+                            url: 'https://test.rasterex.com/rxweb/assets/fonts/timesbi.ttf'
                         }
                     ],
                     charsets: [0]
@@ -378,7 +378,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                         {
                             //bold: -1,
                             flags: 32 ,
-                            url: 'http://viewserver.rasterex.com/rxweb/assets/fonts/timesi.ttf'
+                            url: 'https://test.rasterex.com/rxweb/assets/fonts/timesi.ttf'
                         }
                     ],
                     charsets: [0]

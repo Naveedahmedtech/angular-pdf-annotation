@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  NEST_URL: 'http://localhost:3000',
+  NEST_URL: 'https://backend.viewsoft.com',
 };
 
 /*

@@ -4,7 +4,7 @@ var RxConfig = (function() {
     /* server connect */
     var gui360URL = "rxweb/";
 
-    var baseURL = "http://viewserver.rasterex.com/";
+    var baseURL = "https://test.rasterex.com/";
 
     var baseURLBin = baseURL + "RxBinWeb/";
     var baseURLWeb = baseURL + "rxweb/";
@@ -49,7 +49,7 @@ var RxConfig = (function() {
 
     /* config */
 
-    //"http://viewserver.rasterex.com/RxBinweb/RxCSISAPI.dll?WebClientGetConfig";
+    //"https://test.rasterex.com/RxBinweb/RxCSISAPI.dll?WebClientGetConfig";
 
     var configurationLocation = baseURLBin + "RxCSISAPI.dll?WebClientGetConfig";
     var bGetconfig = true;

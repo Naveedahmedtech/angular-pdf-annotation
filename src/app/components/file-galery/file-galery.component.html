@@ -12,7 +12,7 @@
       </div>
       <div class="btn-file-gallery">
         <button *ngIf="!isUploadFile" class="btn btn-light" (click)="clearData()">CANCEL</button>
-        <button class="btn btn-primary" (click)="uploadFile(file)" [disabled]="isUploadFile">UPLOAD</button>
+        <button  class="btn btn-primary" (click)="uploadFile(file)" [disabled]="isUploadFile">UPLOAD</button>
       </div>
     </div>
   </div>
@@ -69,7 +69,7 @@
               </div>
               <div class="btn-file-gallery">
                 <button *ngIf="!isUploadFile" class="btn btn-light" (click)="clearData()">CANCEL</button>
-                <button class="btn btn-primary" (click)="uploadFile(file)" [disabled]="isUploadFile">
+                <button id="uploadButton" class="btn btn-primary" (click)="uploadFile(file)" [disabled]="isUploadFile">
                   UPLOAD
                 </button>
               </div>
@@ -82,6 +82,14 @@
 </div>
 
 <div *ngIf="isUploadFile" class="progress-container">
+  <div class="progress">
+    <div>It takes a few seconds to open this document...</div>
+    <progress value="0" max="100" #progressBar></progress>
+  </div>
+</div>
+
+
+<div *ngIf="isUploading" class="progress-container">
   <div class="progress">
     <div>It takes a few seconds to open this document...</div>
     <progress value="0" max="100" #progressBar></progress>

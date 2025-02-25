@@ -53,8 +53,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.projectId = params['projectId'] || null; // Get `projectId`
       this.userId = params['userId'] || null; // Get `userId`
 
-      console.log('File ID from query params:', this.fileId);
-
       if (this.fileId && this.filePath && this.projectId && this.userId) {
         this.openFileGalleryWithFileId(this.fileId, this.filePath, this.projectId, this.userId);
       }

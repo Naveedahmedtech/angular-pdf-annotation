@@ -29,6 +29,9 @@ export class AnnotationToolsComponent implements OnInit {
   issueEndDate: string = ''; // ISO string or Date object
   issueFiles: File[] = []; // Array of files
   issueProjectId: string = ''; // Project ID
+  isLoading: boolean = false; // To show/hide loading spinner
+  successMessage: string = ""; // To show success messages
+  errorMessage: string = ""; // To show error messages
 
 
   isActionSelected = {
@@ -37,6 +40,7 @@ export class AnnotationToolsComponent implements OnInit {
     SHAPE_RECTANGLE: false,
     SHAPE_RECTANGLE_ROUNDED: false,
     SHAPE_ELLIPSE: false,
+    SHAPE_HAZARD: false,
     SHAPE_CLOUD: false,
     SHAPE_POLYGON: false,
     NOTE: false,
@@ -76,7 +80,8 @@ export class AnnotationToolsComponent implements OnInit {
       this.isActionSelected['SHAPE_RECTANGLE_ROUNDED'] ||
       this.isActionSelected['SHAPE_ELLIPSE'] ||
       this.isActionSelected['SHAPE_CLOUD'] ||
-      this.isActionSelected['SHAPE_POLYGON']
+      this.isActionSelected['SHAPE_POLYGON'] ||
+      this.isActionSelected['SHAPE_HAZARD'] 
     );
   }
 
@@ -227,6 +232,11 @@ export class AnnotationToolsComponent implements OnInit {
         break;
 
       case 'SHAPE_ELLIPSE':
+        RXCore.setGlobalStyle(true);
+        RXCore.markUpShape(this.isActionSelected[actionName], 1);
+        break;
+
+      case 'SHAPE_HAZARD':
         RXCore.setGlobalStyle(true);
         RXCore.markUpShape(this.isActionSelected[actionName], 1);
         break;
@@ -410,79 +420,92 @@ export class AnnotationToolsComponent implements OnInit {
 
   // Handle "Create Issue" form submission
   onSubmitCreateIssue(): void {
-    // Step 1: Trigger File Upload (this calls TopNavMenuComponent)
-    this.fileGaleryService.triggerTopNavMethod();
+    this.isLoading = true; // Show loading
+    this.successMessage = "";
+    this.errorMessage = "";
 
-    // Step 2: Wait for File Upload Success Before Proceeding
-    this.fileGaleryService.fileUploadStatus$.subscribe((status) => {
-      if (status.success) {
-        console.log("✅ File uploaded successfully! Proceeding to create issue...");
+    this.fileGaleryService.projectId$.pipe(first()).subscribe((projectId) => {
+      console.log("📂 projectId:", projectId);
 
-        // Fetch projectId first
-        this.fileGaleryService.projectId$.subscribe((projectId) => {
-          console.log("📂 projectId:", projectId);
+      this.fileGaleryService.userId$.pipe(first()).subscribe((userId) => {
+        console.log("👤 userId:", userId);
 
-          // Fetch userId after projectId is available
-          this.fileGaleryService.userId$.subscribe((userId) => {
-            console.log("👤 userId:", userId);
+        if (!this.issueTitle.trim() || !projectId || !userId) {
+          console.warn("⚠️ Title, projectId, and userId are required!");
+          this.isLoading = false;
+          this.errorMessage = "⚠️ Title, projectId, and userId are required!";
+          return;
+        }
 
-            // Ensure required values exist
-            if (!this.issueTitle.trim() || !projectId || !userId) {
-              console.warn("⚠️ Title, projectId, and userId are required!");
-              return;
-            }
+        const issueData = {
+          title: this.issueTitle,
+          description: this.issueDescription,
+          startDate: this.formatDate(this.issueStartDate),
+          endDate: this.formatDate(this.issueEndDate),
+          status: this.issueStatus,
+          userId: userId,
+          projectId: projectId,
+        };
 
-            const issueData = {
-              title: this.issueTitle,
-              description: this.issueDescription,
-              startDate: this.formatDate(this.issueStartDate),
-              endDate: this.formatDate(this.issueEndDate),
-              status: this.issueStatus,
-              userId: userId, // ✅ Now using dynamic userId
-              projectId: projectId, // ✅ Now using dynamic projectId
-            };
+        // Step 1: Create the Issue first
+        this.createIssue(issueData)
+          .then((issueId) => {
+            console.log("✅ Issue created successfully! Issue ID:", issueId);
 
-            // Step 4: Send Issue Creation Request
-            this.createIssue(issueData)
-              .then(() => {
-                console.log("✅ Issue creation successful!", issueData);
-                this.resetForm();
-                this.closeCreateIssueModal();
-              })
-              .catch((error) => {
-                console.error("❌ Issue creation failed:", error);
-              });
+            // Step 2: Store issueId properly
+            this.fileGaleryService.setIssueId(issueId);
+
+            // Step 3: Ensure file upload happens AFTER issueId is properly stored
+            setTimeout(() => {
+              this.fileGaleryService.triggerTopNavMethod();
+            }, 500);
+
+            // Step 4: Listen for file upload result
+            this.fileGaleryService.fileUploadStatus$.pipe(first()).subscribe((status) => {
+              if (status.success) {
+                console.log("✅ File uploaded successfully.");
+                this.successMessage = "✅ Issue created and file uploaded successfully!";
+                this.isLoading = false;
+
+                setTimeout(() => {
+                  this.closeCreateIssueModal();
+                  this.successMessage = "";
+                }, 2000);
+              } else {
+                this.isLoading = false;
+                this.errorMessage = "❌ Failed to upload the file!";
+              }
+            });
+          })
+          .catch((error) => {
+            console.error("❌ Issue creation failed:", error);
+            this.isLoading = false;
+            this.errorMessage = "❌ Issue creation failed!";
           });
-        });
-      } else {
-        console.error("❌ File upload failed. Issue creation aborted:", status.message);
-      }
+      });
     });
   }
 
 
-  createIssue(data): Promise<void> {
+// Create Issue and return the Issue ID
+  createIssue(data): Promise<string> { // Return issueId
     return new Promise((resolve, reject) => {
-
-      const headers = new HttpHeaders(); // Add any headers if needed (e.g., Authorization)
+      const headers = new HttpHeaders();
       this.http
-        .post(
-          `${NEST_URL}/api/v1/issue/create`,
-          data,
-          { headers }
-        )
+        .post<{ data: {id: string} }>(`${NEST_URL}/api/v1/issue/create`, data, { headers })
         .subscribe({
           next: (response) => {
-            console.log("Issue created successfully:", response);
-            resolve(); // ✅ Success
+            console.log("Issue created successfully:", response?.data?.id);
+            resolve(response?.data?.id); // ✅ Return the issueId
           },
           error: (error) => {
             console.error("Error creating issue:", error);
-            reject(error); // ❌ Failure
+            reject(error);
           },
         });
     });
   }
+
 
 
   resetForm(): void {

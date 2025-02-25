@@ -23,6 +23,7 @@ export interface IGuiConfig {
     disableMarkupShapeButton?: boolean;
     disableMarkupShapeRectangleButton?: boolean;
     disableMarkupShapeEllipseButton?: boolean;
+    disableMarkupShapeHazardButton?: boolean;
     disableMarkupShapeRoundedRectangleButton?: boolean;
     disableMarkupShapePolygonButton?: boolean;
     disableMarkupShapeCloudButton?: boolean;

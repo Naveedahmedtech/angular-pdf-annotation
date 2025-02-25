@@ -3416,7 +3416,7 @@ window.addEventListener('load', function () {
 
       context = canvas.getContext('2d');*/
 
-      //getFile('http://viewserver.rasterex.com/rxweb/Upload/Volvo_Drawing_Standards.pdf');
+      //getFile('https://test.rasterex.com/rxweb/Upload/Volvo_Drawing_Standards.pdf');
 
        
 

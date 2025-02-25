@@ -87,7 +87,6 @@ export class TopNavMenuComponent implements OnInit {
     this.fileGaleryService.topNavMethodTrigger$.subscribe(() => {
       this.onGetURL()
         .then(() => {
-          console.log("Success! Proceeding with next step...");
           // Do something after success
           this.fileGaleryService.notifyFileUploadStatus(true, "File uploaded successfully!");
         })
@@ -110,7 +109,7 @@ export class TopNavMenuComponent implements OnInit {
     });
 
     this.fileGaleryService.fileId$.subscribe((filePath) => {
-      console.log('File ID in TopNavMenu:', filePath);
+      // console.log('File ID in TopNavMenu:', filePath);
     });
 
 
@@ -244,6 +243,7 @@ export class TopNavMenuComponent implements OnInit {
           disableMarkupLockButton: true,
           disableMarkupShapeRectangleButton: true,
           disableMarkupShapeEllipseButton: true,
+          disableMarkupShapeHazardButton: true,
           disableMarkupShapeRoundedRectangleButton: true,
           disableMarkupShapePolygonButton: true,
           enableGrayscaleButton: this.compareService.isComparisonActive
@@ -278,6 +278,7 @@ export class TopNavMenuComponent implements OnInit {
             disableMarkupLockButton: false,
             disableMarkupShapeRectangleButton: false,
             disableMarkupShapeEllipseButton: false,
+            disableMarkupShapeHazardButton: false,
             disableMarkupShapeRoundedRectangleButton: false,
             disableMarkupShapePolygonButton: false,
             enableGrayscaleButton: this.compareService.isComparisonActive
@@ -354,8 +355,6 @@ export class TopNavMenuComponent implements OnInit {
   }
 
   handleSaveFile(): void {
-    console.log("Saving...");
-    console.log(RXCore.markUpSave);
     RXCore.markUpSave();
     this.burgerOpened = false;
   }
@@ -376,8 +375,10 @@ export class TopNavMenuComponent implements OnInit {
 
   onGetURL(): Promise<void> {
     return new Promise((resolve, reject) => {
+      // 🔄 Wait until active file is available
       if (!this.state?.activefile) {
-        reject("No active file available.");
+        console.error("⚠️ No active file available. Retrying in 500ms...");
+        setTimeout(() => this.onGetURL().then(resolve).catch(reject), 500);
         return;
       }
 
@@ -397,14 +398,12 @@ export class TopNavMenuComponent implements OnInit {
               combineLatest([
                 this.fileGaleryService.filePath$.pipe(first()),
                 this.fileGaleryService.fileId$.pipe(first()),
-                this.fileGaleryService.userId$.pipe(first())
-              ]).subscribe(([filePath, fileId, userId]) => {
-                console.log("📂 filePath:", filePath);
-                console.log("🆔 fileId:", fileId);
-                console.log("👤 userId:", userId);
+                this.fileGaleryService.userId$.pipe(first()),
+                this.fileGaleryService.issueId$.pipe(first()),
+              ]).subscribe(([filePath, fileId, userId, issueId]) => {
 
-                if (!filePath || !fileId || !userId) {
-                  reject("Missing required data (filePath, fileId, or userId).");
+                if (!filePath || !fileId || !userId || !issueId) {
+                  reject("Missing required data (filePath, fileId, issueId, or userId).");
                   return;
                 }
 
@@ -412,9 +411,8 @@ export class TopNavMenuComponent implements OnInit {
                 const fileName = filePath.split("/").pop() || "annotation.pdf";
 
                 // Upload and handle success/error
-                this.uploadToServer(blob, fileName, fileId, userId)
+                this.uploadToServer(blob, fileName, fileId, userId, issueId)
                   .then(() => {
-                    console.log("✅ File uploaded successfully.");
                     resolve(); // ✅ Success
                   })
                   .catch((error) => {
@@ -431,7 +429,7 @@ export class TopNavMenuComponent implements OnInit {
     });
   }
 
-  uploadToServer(file: Blob, fileName: string = "hello.pdf", fileId: string, userId: string): Promise<void> {
+  uploadToServer(file: Blob, fileName: string = "hello.pdf", fileId: string, userId: string, issueId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const formData = new FormData();
       formData.append("files", file, fileName);
@@ -440,13 +438,12 @@ export class TopNavMenuComponent implements OnInit {
 
       this.http
         .put(
-          `${NEST_URL}/api/v1/universal/upload/${fileId}?userId=${userId}`,
+          `${NEST_URL}/api/v1/universal/upload/${fileId}?userId=${userId}&issueId=${issueId}`,
           formData,
           { headers }
         )
         .subscribe({
           next: (response) => {
-            console.log("File uploaded successfully:", response);
             resolve(); // ✅ Success
           },
           error: (error) => {

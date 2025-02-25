@@ -55,7 +55,6 @@ export class RXCore {
   //   ** file list
   public static getOpenFilesList(): Array<any> {
     const files = RxCore.getOpenFilesList();
-    console.log('TTT', files);
     return RxCore.getOpenFilesList();
   }
 
@@ -325,7 +324,7 @@ export class RXCore {
 
   public static markUpShape(
     onoff: boolean,
-    type: 0 | 1 | 2 | 3,
+    type: 0 | 1 | 2 | 3 | 4,
     subtype: 0 | 1 = 0
   ): void {
     RxCore.markUpShape(onoff, type, subtype);
